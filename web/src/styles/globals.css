@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* KaTeX */
+@import "katex/dist/katex.min.css";
+
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f6f8fa;
+  --color-border: #d0d7de;
+  --color-text: #1f2328;
+  --color-text-muted: #57606a;
+  --color-accent: #0969da;
+  --color-dirty: #9a6700;
+  --toolbar-height: 40px;
+  --tabs-height: 36px;
+  --statusbar-height: 24px;
+  --sidebar-width: 240px;
+}
+
+.dark {
+  --color-bg: #0d1117;
+  --color-surface: #161b22;
+  --color-border: #30363d;
+  --color-text: #e6edf3;
+  --color-text-muted: #8b949e;
+  --color-accent: #58a6ff;
+  --color-dirty: #e3b341;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+/* Prose (preview) overrides for light/dark */
+.prose { color: var(--color-text); max-width: none; }
+.dark .prose { color: var(--color-text); }
+.prose a { color: var(--color-accent); }
+.prose code { background: var(--color-surface); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.9em; }
+.prose pre { background: var(--color-surface) !important; border: 1px solid var(--color-border); }
+.prose hr { border-color: var(--color-border); }
+.prose blockquote { border-left-color: var(--color-border); color: var(--color-text-muted); }
+.prose table { border-collapse: collapse; }
+.prose th, .prose td { border: 1px solid var(--color-border); padding: 0.4rem 0.75rem; }
+.prose th { background: var(--color-surface); }
+
+/* Callout/Admonition styles */
+.callout {
+  border-left: 4px solid;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+  background: var(--color-surface);
+}
+.callout-note { border-color: #0969da; }
+.callout-warning { border-color: #9a6700; background: #fff8c5; }
+.dark .callout-warning { background: #2d2600; }
+.callout-tip { border-color: #1a7f37; }
+.callout-important { border-color: #8250df; }
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  text-transform: capitalize;
+}
+
+/* Heading anchors */
+.prose h1 a,
+.prose h2 a,
+.prose h3 a,
+.prose h4 a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0;
+  margin-left: 0.4rem;
+  font-size: 0.8em;
+}
+.prose h1:hover a,
+.prose h2:hover a,
+.prose h3:hover a,
+.prose h4:hover a { opacity: 0.5; }
+
+/* Code block wrapper */
+.code-block-wrapper {
+  position: relative;
+  margin: 1rem 0;
+}
+.code-block-lang {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-family: monospace;
+  z-index: 1;
+}
+.code-copy-btn {
+  position: absolute;
+  top: 0.3rem;
+  right: 3.5rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  background: var(--color-border);
+  color: var(--color-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.code-block-wrapper:hover .code-copy-btn { opacity: 1; }
+.code-copy-btn:hover { background: var(--color-text-muted); color: #fff; }

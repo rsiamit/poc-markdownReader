@@ -1,0 +1,31 @@
+services:
+  server:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app
+      - ./shared:/shared
+      - ./workspace:/workspace
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - WORKSPACE_DIR=/workspace
+
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      - ./shared:/shared
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      - server

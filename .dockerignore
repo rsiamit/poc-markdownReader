@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/build
+**/.git
+**/coverage
+**/playwright-report
+**/test-results
+**/*.log
+.env
+.env.local
+README.md
+docker-compose*.yml
