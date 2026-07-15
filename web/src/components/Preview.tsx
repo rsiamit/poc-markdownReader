@@ -28,7 +28,7 @@ function useDebounced<T>(value: T, delay: number): T {
   return debounced;
 }
 
-function renderHtmlWithDiagrams(html: string): JSX.Element {
+export function renderHtmlWithDiagrams(html: string): JSX.Element {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
   const codeBlocks = doc.querySelectorAll("pre > code[class]");

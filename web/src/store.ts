@@ -11,7 +11,7 @@ export interface OpenDoc {
 
 export interface Settings {
   theme: "light" | "dark";
-  viewMode: "split" | "editor" | "preview";
+  viewMode: "split" | "editor" | "preview" | "reading";
   fontSize: number;
   wordWrap: boolean;
 }

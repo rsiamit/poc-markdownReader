@@ -12,12 +12,15 @@ import { StatusBar } from "./components/StatusBar";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { Toasts, showToast } from "./components/Toasts";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { buildStandaloneHtml, downloadFile, downloadBlob } from "./lib/exportHtml";
+import { buildStandaloneHtml, sanitizeExportHtml, downloadFile, downloadBlob } from "./lib/exportHtml";
 import { mermaidRenderer } from "./components/diagrams/mermaid";
 import { registerRenderer } from "./components/diagrams/registry";
+import { chartRenderer } from "./components/diagrams/chart";
+import { ReadingMode } from "./components/ReadingMode";
 
 // Register diagram engines
 registerRenderer("mermaid", mermaidRenderer);
+registerRenderer("chart", chartRenderer);
 
 const AUTOSAVE_DELAY = 2000;
 
@@ -105,22 +108,23 @@ export default function App(): JSX.Element {
   // Export HTML — captures the live rendered DOM so Shiki, Mermaid SVGs, KaTeX are all included
   const handleExportHtml = useCallback(async () => {
     if (!doc) return;
-    const renderedHtml = previewRef.current?.getRenderedHtml() ?? parseResult?.html ?? "";
+    // Prefer the live DOM (Shiki + Mermaid + KaTeX already applied); fall back to raw unified HTML
+    const raw = previewRef.current?.getRenderedHtml() ?? parseResult?.html ?? "";
     const title = doc.path.split("/").pop() ?? "export";
-    const html = buildStandaloneHtml(renderedHtml, title);
+    const html = buildStandaloneHtml(sanitizeExportHtml(raw), title, settings.theme);
     const name = title.replace(/\.md$/, ".html");
     downloadFile(html, name, "text/html");
     showToast("HTML exported", "success");
-  }, [doc, parseResult]);
+  }, [doc, parseResult, settings.theme]);
 
   // Export PDF — same: use rendered DOM so diagrams/math/code appear correctly
   const handleExportPdf = useCallback(async () => {
     if (!doc) return;
     setExporting(true);
     try {
-      const renderedHtml = previewRef.current?.getRenderedHtml() ?? parseResult?.html ?? "";
+      const raw = previewRef.current?.getRenderedHtml() ?? parseResult?.html ?? "";
       const title = doc.path.split("/").pop() ?? "export";
-      const html = buildStandaloneHtml(renderedHtml, title);
+      const html = buildStandaloneHtml(sanitizeExportHtml(raw), title, settings.theme);
       const blob = await api.exportPdf(html, title);
       const name = title.replace(/\.md$/, ".pdf");
       downloadBlob(blob, name);
@@ -130,14 +134,22 @@ export default function App(): JSX.Element {
     } finally {
       setExporting(false);
     }
-  }, [doc, parseResult]);
+  }, [doc, parseResult, settings.theme]);
 
   const isDark = settings.theme === "dark";
 
   return (
-    <div className={`flex flex-col h-screen overflow-hidden ${isDark ? "dark" : ""}`}
-      style={{ background: "var(--color-bg)", color: "var(--color-text)" }}
-    >
+    <>
+      {settings.viewMode === "reading" && doc && (
+        <ReadingMode
+          content={doc.content}
+          initialResult={parseResult}
+          onExit={() => setSettings({ viewMode: "split" })}
+        />
+      )}
+      <div className={`flex flex-col h-screen overflow-hidden ${isDark ? "dark" : ""}`}
+        style={{ background: "var(--color-bg)", color: "var(--color-text)" }}
+      >
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 border-b border-[var(--color-border)] bg-[var(--color-surface)] shrink-0" style={{ height: 48 }}>
         <div className="flex items-center gap-2">
@@ -152,13 +164,13 @@ export default function App(): JSX.Element {
         <div className="flex items-center gap-2">
           {/* View mode */}
           <div className="flex border border-[var(--color-border)] rounded overflow-hidden text-xs">
-            {(["split", "editor", "preview"] as const).map((m) => (
+            {(["split", "editor", "preview", "reading"] as const).map((m) => (
               <button
                 key={m}
                 className={`px-2 py-1 ${settings.viewMode === m ? "bg-[var(--color-accent)] text-white" : "hover:bg-[var(--color-surface)]"}`}
                 onClick={() => setSettings({ viewMode: m })}
               >
-                {m === "split" ? "⇌" : m === "editor" ? "✎" : "👁"} {m}
+                {m === "split" ? "⇌" : m === "editor" ? "✎" : m === "reading" ? "📖" : "👁"} {m}
               </button>
             ))}
           </div>
@@ -255,5 +267,6 @@ export default function App(): JSX.Element {
 
       <Toasts />
     </div>
+    </>
   );
 }

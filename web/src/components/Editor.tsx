@@ -49,17 +49,18 @@ export function Editor({ content, onChange, onViewRef, onCursorChange }: Props):
   }, [onChange]);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full">
       <CodeMirror
         ref={cmRef}
         value={content}
+        height="100%"
         onChange={handleChange}
         extensions={extensions}
         theme={isDark ? oneDark : "light"}
         style={{
-          height: "100%",
           fontSize: settings.fontSize,
           fontFamily: "JetBrains Mono, Fira Code, ui-monospace, monospace",
+          height: "100%",
         }}
         basicSetup={{
           lineNumbers: true,

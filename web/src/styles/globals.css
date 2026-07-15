@@ -95,34 +95,142 @@ html, body, #root {
 .prose h3:hover a,
 .prose h4:hover a { opacity: 0.5; }
 
-/* Code block wrapper */
+/* ── Code blocks — VS Code-style ── */
 .code-block-wrapper {
-  position: relative;
-  margin: 1rem 0;
+  margin: 1.25rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
+.dark .code-block-wrapper { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.32); }
+
+/* Title bar */
+.code-block-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  min-height: 34px;
+  user-select: none;
+}
+
+/* macOS-style window dots */
+.code-dots { display: flex; gap: 5px; flex-shrink: 0; margin-right: 0.3rem; }
+.code-dots > span { width: 11px; height: 11px; border-radius: 50%; display: block; }
+.code-dots > span:nth-child(1) { background: #ff5f57; }
+.code-dots > span:nth-child(2) { background: #febc2e; }
+.code-dots > span:nth-child(3) { background: #28c840; }
+
+/* Language badge (center of bar) */
 .code-block-lang {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.5rem;
-  font-size: 0.7rem;
+  flex: 1;
+  font-size: 0.72rem;
+  font-family: "SFMono-Regular", Consolas, monospace;
   color: var(--color-text-muted);
-  font-family: monospace;
-  z-index: 1;
+  font-weight: 500;
+  letter-spacing: 0.03em;
 }
+
+/* Copy button (right of bar, always visible) */
 .code-copy-btn {
-  position: absolute;
-  top: 0.3rem;
-  right: 3.5rem;
-  padding: 0.15rem 0.5rem;
+  padding: 0.15rem 0.6rem;
   font-size: 0.7rem;
-  background: var(--color-border);
-  color: var(--color-text);
-  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s;
-  z-index: 1;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-.code-block-wrapper:hover .code-copy-btn { opacity: 1; }
-.code-copy-btn:hover { background: var(--color-text-muted); color: #fff; }
+.code-copy-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+/* Shiki highlighted code — remove border-radius so parent clips it */
+.code-block-wrapper .shiki {
+  margin: 0;
+  border-radius: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.875em;
+  line-height: 1.65;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ── Line numbers via CSS counters ──
+   Shiki wraps each code line in <span class="line">.
+   ::before uses a CSS counter — this content is never included in
+   element.textContent so it won't pollute clipboard copies. */
+.code-block-wrapper .shiki code {
+  counter-reset: ln;
+}
+.code-block-wrapper .shiki .line::before {
+  counter-increment: ln;
+  content: counter(ln);
+  display: inline-block;
+  width: 1.8rem;
+  margin-right: 1.4rem;
+  text-align: right;
+  opacity: 0.28;
+  user-select: none;
+  -webkit-user-select: none;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.875em;
+  border-right: 1px solid rgba(128, 128, 128, 0.18);
+  padding-right: 0.5rem;
+}
+/* Suppress the trailing empty line Shiki appends to most blocks */
+.code-block-wrapper .shiki .line:last-child:empty { display: none; }
+.code-block-wrapper .shiki .line:last-child:empty::before { content: none; }
+
+/* Plain pre fallback (shows while Shiki loads) */
+.code-block-plain {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.875em;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+
+/* ── Reading mode — colorful headings, warm typography ── */
+.reading-mode {
+  font-size: 18px;
+  line-height: 1.85;
+}
+
+/* Frontmatter title */
+.reading-fm-title { color: #1e3a8a; font-size: 2.4em; font-weight: 800; line-height: 1.15; }
+.dark .reading-fm-title { color: #93c5fd; }
+
+/* Light mode heading colors */
+.reading-mode h1 { color: #1e3a8a; }
+.reading-mode h2 { color: #166534; background: linear-gradient(to right,#dcfce7,transparent); padding: 0.25em 0.6em; border-radius: 4px; border-bottom: 2px solid #86efac; }
+.reading-mode h3 { color: #92400e; border-left: 3px solid #fcd34d; padding-left: 0.6em; }
+.reading-mode h4 { color: #4c1d95; }
+.reading-mode h5 { color: #9f1239; font-style: italic; }
+.reading-mode h6 { color: #374151; font-variant: small-caps; letter-spacing: 0.06em; }
+
+/* Dark mode heading colors */
+.dark .reading-mode h1 { color: #93c5fd; }
+.dark .reading-mode h2 { color: #6ee7b7; background: linear-gradient(to right,rgba(110,231,183,0.12),transparent); border-bottom-color: #34d399; }
+.dark .reading-mode h3 { color: #fcd34d; border-left-color: #fcd34d; }
+.dark .reading-mode h4 { color: #c4b5fd; }
+.dark .reading-mode h5 { color: #f9a8d4; }
+.dark .reading-mode h6 { color: #94a3b8; }
+
+/* Reading mode — override prose link color for contrast */
+.reading-mode a { color: #1d4ed8; }
+.dark .reading-mode a { color: #60a5fa; }
+
+/* Reading mode — slightly larger blockquote */
+.reading-mode blockquote { font-size: 1.05em; font-style: italic; }
